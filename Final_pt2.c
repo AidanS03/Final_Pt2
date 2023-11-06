@@ -25,4 +25,8 @@ void initUSART(){
      USART1_CR2.B12 = 0; //forces bits 13 and 12 to 00 so there is one stop bit
      USART1_CR2.B13 = 0;
      USART1_CR3.B8 = 0; //forces bit 8 to 0 so no hardware flow
+     USART1_CR1.B10 = 0;//forces no parity
+     USART1_CR1.B2 = 1; //Rx enabled
+     USART1_CR1.B3 = 1; //Tx enabled
+     USART1_CR1.B13 = 1; //Enables UART and needs to be enabled after all the configuration above
 }
