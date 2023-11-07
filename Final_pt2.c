@@ -17,8 +17,8 @@ void main() {
      for(;;){
           initGPIO();
 //Objective 2
-          //initUSART();
-          InitializeUSART1();
+          initUSART();
+          //InitializeUSART1();
           joy = joyRead();
           if(USART1_SR.B7 == 1){
                USART1_DR = joy;
@@ -52,6 +52,7 @@ void initUSART(){
      RCC_APB2ENR |= 1; //start clock to PA9 and PA10 can use alternate function
      AFIO_MAPR = 0xF000000; //do no want to remap PA9 and PA10 in bit 2
      RCC_APB2ENR |= 1 << 2; //enable clock for PA9 and PA10
+     GPIOA_CRH = 0; //clear PA9 and PA10
      GPIOA_CRH = 0x4B0; //sets PA9 (Tx) as a push-pull output and PA10 (Rx) as an input
      RCC_APB2ENR |= 1<<14; //enable clock for USART1
      USART1_BRR=0X00000506; //set baud rate to 56000
