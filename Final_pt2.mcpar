@@ -6,7 +6,7 @@ Value=0
 [BUILD_TYPE]
 Value=0
 [ACTIVE_TAB]
-Value=..\Final_Pt1\Final_Pt1.c
+Value=Final_pt2.c
 [USE_EEPROM]
 Value=0
 [USE_HEAP]
@@ -25,8 +25,7 @@ Count=0
 ActiveImageIndex=-1
 [OPENED_FILES]
 File0=Final_pt2.c
-File1=..\Final_Pt1\Final_Pt1.c
-Count=2
+Count=1
 [EEPROM]
 Count=0
 [ACTIVE_COMMENTS_FILES]
