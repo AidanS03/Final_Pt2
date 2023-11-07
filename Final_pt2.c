@@ -34,15 +34,32 @@ void initUART();
 //Main Fucntion
 void main() {
 
+         for(;;){
+          switch(joyRead()){
+               case 0 : //no press
+               case 1 : //up turn on PE11 and PE15
+               case 2 : //right turn on PE9 and PE10
+               case 3 : //down turn on PE8 and PE12
+               case 4 : //left turn on PE13 and 14
+               case 5 : //click turn on all
+          }
+     }
+}
 }
 
 void initUART(){
-      for(;;){  //the switch case scenario for the joystick, I just plop them here for now
-      case 1:
-      case 2:
-      case 3:
-      case 4:
-      case 5:
-      
-      }
+
+}
+int joyRead(){
+     if(GPIOD_IDR.B4 == 1){
+     //joystick up return a 1
+     }else if(GPIOA_IDR.B4 == 1){
+     //joystick right return 2
+     }else if(GPIOB_IDR.B5 == 1){
+     //joystick down return 3
+     }else if(GPIOD_IDR.B2 == 1){
+     //joystick left return 4
+     }else if(GPIOC_IDR.B13 == 1){
+     //joystick clicked return 5
+     }else //nothing pressed return 0
 }
