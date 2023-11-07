@@ -71,26 +71,20 @@ int joyRead(){      //need to change to a ASCII output to mikroC terminal from t
 }
 //VARIABLE DECLARATIONS
 for(;;) {
-// The peripheral registers can be accessed by half-words (16-bit) or
-words (32-bit).
+// The peripheral registers can be accessed by half-words (16-bit) or words (32-bit).
 // Per data sheet (pg. 1007) USART1_SR consists of the following:
 // 9 8 7 6 5 4 3 2 1 0
 //CTS LBD TXE TC RXNE IDLE ORE NE FE PE
-while (!((USART1_SR & (1<<5))== 0x20)){} // Check RXNE in USART1 Status
-Register.
-// while
-receiver data register is empty, wait
+while (!((USART1_SR & (1<<5))== 0x20)){} // Check RXNE in USART1 StatusRegister.
+// while receiver data register is empty, wait
 // You can also check RXNE directly
-// while (!USART1_SR.RXNE = 1) {} //while receiver data register is
-empty wait
-// When data becomes available, we can store it on the CPU in a
-variable. Data is put into
+// while (!USART1_SR.RXNE = 1) {} //while receiver data register is empty wait
+// When data becomes available, we can store it on the CPU in a variable. Data is put into
 // the USART data register USART1_DR (pg. 1010)
 rcvrd = USART1_DR; //read data from receiver data register
 //while transmitter data register is not empty wait
 while (! (USART1_SR & (1<<7)) == 0x80) {}
-// If we want to send data out via USART, we use the same data
-register
+// If we want to send data out via USART, we use the same data   register
 USART1_DR = rcvrd; // transmit the received data
 }
 }
