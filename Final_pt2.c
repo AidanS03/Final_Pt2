@@ -26,6 +26,13 @@
           //may have to change this later to be wihtin the function as for
           //obj 3 all of portD needs to be an ouput.
      GPIOE_CRH = 0x33333333; //Set PortE/H as an output for LEDS
+     
+     
+//****USART CODE
+     unsigned int rcvrd;
+     void USART1(); // Sub function which initializes the registers to enable USART1
+//****
+
 //******************************************************************************
 //Functions
 void initUART();
@@ -50,7 +57,7 @@ void main() {
 void initUART(){
 
 }
-int joyRead(){
+int joyRead(){      //need to change to a ASCII output to mikroC terminal from the USART connection?
      if(GPIOD_IDR.B4 == 1){
      //joystick up return a 1
      }else if(GPIOA_IDR.B4 == 1){
