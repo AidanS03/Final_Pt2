@@ -18,7 +18,6 @@ void main() {
           initGPIO();
 //Objective 2
           initUSART();
-          //InitializeUSART1();
           joy = joyRead();
           if(USART1_SR.B7 == 1){
                USART1_DR = joy;
@@ -53,17 +52,20 @@ void initUSART(){
      AFIO_MAPR = 0xF000000; //do no want to remap PA9 and PA10 in bit 2
      RCC_APB2ENR |= 1 << 2; //enable clock for PA9 and PA10
      GPIOA_CRH = 0; //clear PA9 and PA10
-     GPIOA_CRH = 0x4B0; //sets PA9 (Tx) as a push-pull output and PA10 (Rx) as an input
+     GPIOA_CRH |= 0x4B << 4; //sets PA9 (Tx) as a push-pull output and PA10 (Rx) as an input
      RCC_APB2ENR |= 1<<14; //enable clock for USART1
-     USART1_BRR=0X00000506; //set baud rate to 56000
+     USART1_BRR=0X506; //set baud rate to 56000
      USART1_CR1.B12 = 0; //forces M as 0 so 8 data bits
      USART1_CR2.B12 = 0; //forces bits 13 and 12 to 00 so there is one stop bit
      USART1_CR2.B13 = 0;
-     USART1_CR3.B8 = 0; //forces bit 8 to 0 so no hardware flow
+     USART1_CR3.B8 = 0; //forces bit 8 to 0 so no RTS hardware flow
+     USART1_CR3.B9 = 0; //forces bit 9 to 0 so no CTS hardware flow
+     USART1_CR1.B9 = 0; //forces even parity but we will turn it off
      USART1_CR1.B10 = 0;//forces no parity
      USART1_CR1.B2 = 1; //Rx enabled
      USART1_CR1.B3 = 1; //Tx enabled
      USART1_CR1.B13 = 1; //Enables UART and needs to be enabled after all the configuration above
+     Delay_ms(100);
 }
 
 void InitializeUSART1(){ // Sub function which initializes the registers to enable USART1
