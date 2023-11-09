@@ -5,11 +5,14 @@
 //******************************************************************************
 //Global Varibles
 int joy;
+char a, b;
 //******************************************************************************
 //Functions
 void initUSART();
 int joyRead();
 void initGPIO();
+void sendChar(char message);
+void sendPressed();
 //******************************************************************************
 //Main Fucntion
 void main() {
@@ -18,8 +21,41 @@ void main() {
 //Objective 2
           initUSART();
           joy = joyRead();
-          if(USART1_SR.B7 == 1){
-               USART1_DR = joy;
+          a = 'a';
+          b = 'b';
+          switch(joy){
+               case 0: //no press do nothing
+                    break;
+               case 1: //up press, send UP
+                    sendChar(' ');
+                    sendChar('U');
+                    sendChar('P');
+                    sendPressed();
+                    break;
+               case 2: //right press, send RT
+                    sendChar(' ');
+                    sendChar('R');
+                    sendChar('T');
+                    sendPressed();
+                    break;
+               case 3: //down press, send DN
+                    sendChar(' ');
+                    sendChar('D');
+                    sendChar('N');
+                    sendPressed();
+                    break;
+               case 4: //left press, send LT
+                    sendChar(' ');
+                    sendChar('L');
+                    sendChar('T');
+                    sendPressed();
+                    break;
+               case 5: //click press, send CK
+                    sendChar(' ');
+                    sendChar('C');
+                    sendChar('K');
+                    sendPressed();
+                    break;
           }
      }
 }
@@ -73,4 +109,22 @@ void initGPIO(){
      RCC_APB2ENR |= 1 << 4;  //enables clock for PortC
      RCC_APB2ENR |= 1 << 5;  //enables clock for PortD
      RCC_APB2ENR |= 1 << 6;  //enables clock for PortE
+}
+
+void sendChar(char message){
+     if(USART1_SR.B7 == 1){
+          USART1_DR = message;
+     }
+     Delay_ms(5);
+}
+
+void sendPressed(){
+     sendChar(' ');
+     sendChar('P');
+     sendChar('r');
+     sendChar('e');
+     sendChar('s');
+     sendChar('s');
+     sendChar('e');
+     sendChar('d');
 }
