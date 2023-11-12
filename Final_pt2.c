@@ -5,7 +5,6 @@
 //******************************************************************************
 //Global Varibles
 int joy;
-char a, b;
 //******************************************************************************
 //Functions
 void initUSART();
@@ -21,8 +20,6 @@ void main() {
 //Objective 2
           initUSART();
           joy = joyRead();
-          a = 'a';
-          b = 'b';
           switch(joy){
                case 0: //no press do nothing
                     break;
@@ -115,7 +112,7 @@ void sendChar(char message){
      if(USART1_SR.B7 == 1){
           USART1_DR = message;
      }
-     Delay_ms(5);
+     Delay_ms(1);
 }
 
 void sendPressed(){
