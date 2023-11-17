@@ -1,15 +1,23 @@
-//Name:
-//Date:
-//Course:
-//Description:
+//Name: Aidan Stoner, Marc Santacapita, Erin Cardino, Shaunessy Reynolds
+//Date: 11/20/23
+//Course: ELEC-3371
+//Description: Working with USART to send and recieve messages that will tell us status and data
+//             about the "game". Obj2 sends a message about which direction the joystick was
+//             pressed from the MCU to my computer. Obj3 takes a message, either 'p' or 'P', from 
+//             my computer and returns the message 'Paused' or 'Unpaused' depending on which state
+//             it is in and moves it to the opposite state. Bonus Obj4 prints out the number of
+//             times each direction was pressed on the joystick in a nice display.
 //******************************************************************************
 //Global Varibles
 int joy, i, sent, temp;
 char recieved;
 int paused; //set 1 when paused, 0 when unpaused
-char PauseMessage[7] = {'P','a','u','s','e','d',' '};
-char UnpauseMessage[9] = {'U','n','p','a','u','s','e','d',' '};
+char PauseMessage[8] = {'P','a','u','s','e','d',13,10};
+char UnpauseMessage[10] = {'U','n','p','a','u','s','e','d',13,10};
 int pressCounts[5] = {0,0,0,0,0}; //from left to right UP, RT, DN, LT, CK
+char CountMessage[38] = {'J','o','y','s','t','i','c','k',' ','P','r','e','s','s','e','s',' ','S','i','n','c','e',' ','L','a','s','t',' ','R','e','s','e','t',':',13,10,13,10};
+char letter1[5] = {'U', 'R', 'D', 'L', 'C'};
+char letter2[5] = {'P', 'T', 'N', 'T', 'K'};
 //******************************************************************************
 //Functions
 void initUSART();
@@ -18,23 +26,24 @@ void initGPIO();
 void sendChar(char message);
 void sendPressed();
 void checkForMessage();
+void sendPressCount(int idx);
 //******************************************************************************
 //Main Fucntion
 void main() {
-     initUSART();
-     initGPIO();
+     initUSART(); //starts USART1
+     initGPIO();  //Starts clocks for GPIO
      for(;;){
 //Objective 2
-          joy = joyRead();
+          joy = joyRead(); //reads what direction the joystick is in and returns 0-5
           switch(joy){
                case 0: //no press do nothing
-                    sent = 0;
+                    sent = 0; //sent variable is used to avoid the message from being sent multiple times for one press
                     break;
                case 1: //up press, send UP
                     if(sent == 0){
                          sendChar('U');
-                         sendChar('P');
-                         sendPressed();
+                         sendChar('P');  //sends the message, updates the sent variable and adds one to the count
+                         sendPressed();  //same process for each direction
                          sent = 1;
                          pressCounts[0] = pressCounts[0] + 1;
                          break;
@@ -84,38 +93,35 @@ void main() {
           if(recieved == 'p' || recieved == 'P'){ //check to make sure we recieved a p or P
                if(paused == 0){ //checks if game is currently unpaused
                     paused = 1; //updates variable
-                    for(i = 0; i < 7; i++){  //this loop sends the message through UART1 that the game has been paused
-                         if(USART1_SR.B7 == 1){
-                              USART1_DR = PauseMessage[i];
-                         }
-                         Delay_ms(1);
+                    for(i = 0; i < 8; i++){  //this loop sends the message through UART1 that the game has been paused
+                         sendChar(PauseMessage[i]);
                     }
                }else if(paused == 1){ //checks if game in paused
                     paused = 0; //updates variable
-                    for(i = 0; i < 9; i++){ //this loop sends the message through UART1 that the game has been unpaused
-                         if(USART1_SR.B7 == 1){
-                              USART1_DR = UnpauseMessage[i];
-                         }
-                         Delay_ms(1);
+                    for(i = 0; i < 10; i++){ //this loop sends the message through UART1 that the game has been unpaused
+                         sendChar(UnpauseMessage[i]);
                     }
                }
           }
 //******************************************************************************
-//Objective 4
+//Bonus Objective 4
      //count variables are being updated in obj1 then all the display stuff happens here
           if(recieved == 'Q'){
                //print press count for each button to UART1
-               sendChar((pressCounts[0]/10) + 48);
-               temp = (pressCounts[0]/10) * 10;
-               sendChar(pressCounts[0] - temp + 48);
-               sendChar(' ');
+               for(i = 0; i < 38; i++){
+                    sendChar(CountMessage[i]); //sends the data title
+               }
+               for(i = 0; i < 5; i++){
+                    sendPressCount(i); //sends the label and data for each direction
+               }
+
           }
           recieved = 0; //clears the pause/unpause variable, needed to prevent looping
      }
 }
 //******************************************************************************
 //Function Definitions
-int joyRead(){
+int joyRead(){     //determines which direction joystick is being pressed and returns 0-5
      GPIOA_CRL |= 1 << 26; //Sets PA6 as an input
      GPIOB_CRL |= 1 << 22; //sets PB5 as an input
      GPIOC_CRH |= 1 << 22; //sets PC13 as an input
@@ -136,7 +142,7 @@ int joyRead(){
      }else return 0; //nothing pressed return 0
 }
 
-void initUSART(){
+void initUSART(){ //starts USART1
      RCC_APB2ENR |= 1; //start clock to PA9 and PA10 can use alternate function
      AFIO_MAPR = 0xF000000; //do no want to remap PA9 and PA10 in bit 2
      RCC_APB2ENR |= 1 << 2; //enable clock for PA9 and PA10
@@ -157,7 +163,7 @@ void initUSART(){
      Delay_ms(100);
 }
 
-void initGPIO(){
+void initGPIO(){  //starts the clocks for GPIO
      RCC_APB2ENR |= 1 << 2;  //enables clock for PortA
      RCC_APB2ENR |= 1 << 3;  //enables clock for PortB
      RCC_APB2ENR |= 1 << 4;  //enables clock for PortC
@@ -165,14 +171,14 @@ void initGPIO(){
      RCC_APB2ENR |= 1 << 6;  //enables clock for PortE
 }
 
-void sendChar(char message){
+void sendChar(char message){ //sends one character over USART
      if(USART1_SR.B7 == 1){
           USART1_DR = message;
      }
      Delay_ms(1);
 }
 
-void sendPressed(){
+void sendPressed(){  //sends the word 'Pressed' over USART
      sendChar(' ');
      sendChar('P');
      sendChar('r');
@@ -181,5 +187,22 @@ void sendPressed(){
      sendChar('s');
      sendChar('e');
      sendChar('d');
+     sendChar(13);
+     sendChar(10);
+}
+
+void sendPressCount(int idx){    //sends the direction label and count through USART
+     sendChar(letter1[idx]);
+     sendChar(letter2[idx]);
+     sendChar(':');
      sendChar(' ');
+     sendChar((pressCounts[idx]/100) + 48);
+     temp = (pressCounts[idx]/100) * 100;
+     sendChar((pressCounts[idx] - temp)/10 + 48);
+     temp = (pressCounts[idx]/10) * 10;
+     sendChar(pressCounts[idx] - temp + 48);
+     sendChar(13);
+     sendChar(10);
+     sendChar(13);
+     sendChar(10);
 }
