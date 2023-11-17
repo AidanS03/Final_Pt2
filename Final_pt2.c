@@ -4,11 +4,12 @@
 //Description:
 //******************************************************************************
 //Global Varibles
-int joy, i, sent;
+int joy, i, sent, temp;
 char recieved;
 int paused; //set 1 when paused, 0 when unpaused
 char PauseMessage[7] = {'P','a','u','s','e','d',' '};
 char UnpauseMessage[9] = {'U','n','p','a','u','s','e','d',' '};
+int pressCounts[5] = {0,0,0,0,0}; //from left to right UP, RT, DN, LT, CK
 //******************************************************************************
 //Functions
 void initUSART();
@@ -35,6 +36,7 @@ void main() {
                          sendChar('P');
                          sendPressed();
                          sent = 1;
+                         pressCounts[0] = pressCounts[0] + 1;
                          break;
                     }
                case 2: //right press, send RT
@@ -43,6 +45,7 @@ void main() {
                          sendChar('T');
                          sendPressed();
                          sent = 1;
+                         pressCounts[1] = pressCounts[1] + 1;
                          break;
                     }
                case 3: //down press, send DN
@@ -51,6 +54,7 @@ void main() {
                          sendChar('N');
                          sendPressed();
                          sent = 1;
+                         pressCounts[2] = pressCounts[2] + 1;
                          break;
                     }
                case 4: //left press, send LT
@@ -59,6 +63,7 @@ void main() {
                          sendChar('T');
                          sendPressed();
                          sent = 1;
+                         pressCounts[3] = pressCounts[3] + 1;
                          break;
                     }
                case 5: //click press, send CK
@@ -67,6 +72,7 @@ void main() {
                          sendChar('K');
                          sendPressed();
                          sent = 1;
+                         pressCounts[4] = pressCounts[4] + 1;
                          break;
                     }
           }
@@ -94,9 +100,17 @@ void main() {
                     }
                }
           }
-          recieved = 0; //clears the pause/unpause variable, needed to prevent looping
 //******************************************************************************
 //Objective 4
+     //count variables are being updated in obj1 then all the display stuff happens here
+          if(recieved == 'Q'){
+               //print press count for each button to UART1
+               sendChar((pressCounts[0]/10) + 48);
+               temp = (pressCounts[0]/10) * 10;
+               sendChar(pressCounts[0] - temp + 48);
+               sendChar(' ');
+          }
+          recieved = 0; //clears the pause/unpause variable, needed to prevent looping
      }
 }
 //******************************************************************************
