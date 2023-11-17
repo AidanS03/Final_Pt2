@@ -4,7 +4,11 @@
 //Description:
 //******************************************************************************
 //Global Varibles
-int joy;
+int joy, i, sent;
+char recieved;
+int paused; //set 1 when paused, 0 when unpaused
+char PauseMessage[7] = {'P','a','u','s','e','d',' '};
+char UnpauseMessage[9] = {'U','n','p','a','u','s','e','d',' '};
 //******************************************************************************
 //Functions
 void initUSART();
@@ -12,48 +16,87 @@ int joyRead();
 void initGPIO();
 void sendChar(char message);
 void sendPressed();
+void checkForMessage();
 //******************************************************************************
 //Main Fucntion
 void main() {
+     initUSART();
+     initGPIO();
      for(;;){
-          initGPIO();
 //Objective 2
-          initUSART();
           joy = joyRead();
           switch(joy){
                case 0: //no press do nothing
+                    sent = 0;
                     break;
                case 1: //up press, send UP
-                    sendChar(' ');
-                    sendChar('U');
-                    sendChar('P');
-                    sendPressed();
-                    break;
+                    if(sent == 0){
+                         sendChar('U');
+                         sendChar('P');
+                         sendPressed();
+                         sent = 1;
+                         break;
+                    }
                case 2: //right press, send RT
-                    sendChar(' ');
-                    sendChar('R');
-                    sendChar('T');
-                    sendPressed();
-                    break;
+                    if(sent == 0){
+                         sendChar('R');
+                         sendChar('T');
+                         sendPressed();
+                         sent = 1;
+                         break;
+                    }
                case 3: //down press, send DN
-                    sendChar(' ');
-                    sendChar('D');
-                    sendChar('N');
-                    sendPressed();
-                    break;
+                    if(sent == 0){
+                         sendChar('D');
+                         sendChar('N');
+                         sendPressed();
+                         sent = 1;
+                         break;
+                    }
                case 4: //left press, send LT
-                    sendChar(' ');
-                    sendChar('L');
-                    sendChar('T');
-                    sendPressed();
-                    break;
+                    if(sent == 0){
+                         sendChar('L');
+                         sendChar('T');
+                         sendPressed();
+                         sent = 1;
+                         break;
+                    }
                case 5: //click press, send CK
-                    sendChar(' ');
-                    sendChar('C');
-                    sendChar('K');
-                    sendPressed();
-                    break;
+                    if(sent == 0){
+                         sendChar('C');
+                         sendChar('K');
+                         sendPressed();
+                         sent = 1;
+                         break;
+                    }
           }
+//******************************************************************************
+//Objective 3
+          if(USART1_SR.B5 == 1){
+               recieved = USART1_DR; //check if reciever data register is empty and update if it is
+          }
+          if(recieved == 'p' || recieved == 'P'){ //check to make sure we recieved a p or P
+               if(paused == 0){ //checks if game is currently unpaused
+                    paused = 1; //updates variable
+                    for(i = 0; i < 7; i++){  //this loop sends the message through UART1 that the game has been paused
+                         if(USART1_SR.B7 == 1){
+                              USART1_DR = PauseMessage[i];
+                         }
+                         Delay_ms(1);
+                    }
+               }else if(paused == 1){ //checks if game in paused
+                    paused = 0; //updates variable
+                    for(i = 0; i < 9; i++){ //this loop sends the message through UART1 that the game has been unpaused
+                         if(USART1_SR.B7 == 1){
+                              USART1_DR = UnpauseMessage[i];
+                         }
+                         Delay_ms(1);
+                    }
+               }
+          }
+          recieved = 0; //clears the pause/unpause variable, needed to prevent looping
+//******************************************************************************
+//Objective 4
      }
 }
 //******************************************************************************
@@ -124,4 +167,5 @@ void sendPressed(){
      sendChar('s');
      sendChar('e');
      sendChar('d');
+     sendChar(' ');
 }
